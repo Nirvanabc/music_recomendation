@@ -1,0 +1,9 @@
+1. wall_get.py -- пытаемся скачать посты из групп.
+
+Надо закодить отправку запроса на выдачу токена.
+
+Читать:
+1. https://habrahabr.ru/company/1cloud/blog/312806/
+-- хабр
+2.http://static.googleusercontent.com/media/research.google.com/ru//pubs/archive/45530.pdf
+-- Deep Neural Networks for YouTube Recommendations
