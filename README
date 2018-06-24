@@ -1,9 +1,43 @@
-1. wall_get.py -- пытаемся скачать посты из групп.
+1. wall_get.py -- скачиваем посты из групп.
+2. 
+
+
+
 
 Надо закодить отправку запроса на выдачу токена.
 
 Читать:
+
+I. VK_API
+1. https://pikabu.ru/story/api_vkontakte_dlya_python_3961240  -- подробнее про
+получение токена
+
+2. https://codesachin.wordpress.com/2015/11/28/self-organizing-maps-with-googles-tensorflow/
+
+
+II. Обучение без учителя
+
 1. https://habrahabr.ru/company/1cloud/blog/312806/
--- хабр
+-- статья 2 в сокращении
+
 2.http://static.googleusercontent.com/media/research.google.com/ru//pubs/archive/45530.pdf
--- Deep Neural Networks for YouTube Recommendations
+-- Deep Neural Networks for YouTube Recommendations  -- сложная статья
+
+3. https://codesachin.wordpress.com/2015/11/28/self-organizing-maps-with-googles-tensorflow/
+-- Self-Organizing Maps with Google’s TensorFlow реализация
+
+4. https://habr.com/post/334810/ -- на русском, тоже с реализацией
+
+5. http://ai.stanford.edu/~quocle/faces_full.pdf -- обучение без учителя оригинальная статья
+
+6. https://habrahabr.ru/post/146077/  перевод 5, ссылка на 7
+
+7. https://habrahabr.ru/post/134950/  -- разреженный автоэнкодер
+
+8. https://www.intuit.ru/studies/courses/61/61/lecture/20458?page=5 -- подробнее про алгоритм
+с примерами
+
+Памятка для установки fasttext:
+1. sudo pip3 install Cython
+2. sudo apt-get install python3-dev
+3. sudo pip3 install fasttext
