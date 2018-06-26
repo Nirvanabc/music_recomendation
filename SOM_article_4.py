@@ -6,10 +6,10 @@ import matplotlib.pyplot as plt
 class SOM_Network():
     def __init__(self, input_dim, dim=10, sigma=None, learning_rate=0.1, tay2=1000, dtype=tf.float32):
         '''
-        input_dim: dimention of input data
-        dim: grid step
-        sigma: effective width (can be changible while learning)
-        and some constants for the algorithm
+        input_dim: размерность входных данных
+        dim: шаг решётки
+        sigma: эффективная ширина (может быть измененяемой в процессе обучения)
+        И некоторые переменные для вычислений
         '''
         
         #если сигма не определена, устанавливаем ее равной половине размера решетки
@@ -36,13 +36,23 @@ class SOM_Network():
         #матрица позиций всех нейронов, для определения латерального расстояния
         self.positions = tf.where(tf.fill([dim, dim], True))
 
-    
+
     def __competition(self, info=''):
         with tf.name_scope(info+'competition') as scope:
         #вычисляем минимум евклидова расстояния для всей сетки нейронов
         distance = tf.sqrt(tf.reduce_sum(tf.square(self.x - self.w), axis=1))
-        #возвращаем индекс победившего нейрона (формула 1)
+        #возвращаем индекс победившего нейрона (формула 1) (именно позиция, а не значение!)
         return tf.argmin(distance, axis=0)
+
+    
+    def feed(self, input):
+        init = tf.global_variables_initializer()
+        with tf.Session() as sess:
+            init.run()
+            win_index = sess.run(self.__competition(), feed_dict={self.x: input})
+            win_index_2d = np.array([win_index//self.dim.eval(),
+                                     win_index-win_index//self.dim.eval()*self.dim.eval()])
+        return win_index_2d
 
     
     def training_op(self):
@@ -79,7 +89,35 @@ class SOM_Network():
             #вычисляем дельта весов и обновляем всю матрицу весов (формула 4)
             delta = tf.transpose(lr * tnh * tf.transpose(self.x - self.w))
             training_op = tf.assign(self.w, self.w + delta)
-        return training_op
-            
+        return training_op, lr_summary, sigma_summary
 
-# testing
+
+#== Test SOM Network ==
+
+def test_som_with_color_data():
+    som_dim = 100
+    som = SOMNetwork(input_dim=3, dim=som_dim, dtype=tf.float64, sigma=3)
+    test_data = np.random.uniform(0, 1, (250000, 3))
+    training_op, lr_summary, sigma_summary = som.training_op()
+    init = tf.global_variables_initializer()
+    writer = tf.summary.FileWriter('./logs/', tf.get_default_graph())
+    with tf.Session() as sess:
+        init.run()
+        img1 = tf.reshape(som.w, [som_dim,som_dim,-1]).eval()
+        plt.figure(1)
+        plt.subplot(121)
+        plt.imshow(img1)
+        start = time.time()
+        for i, color_data in enumerate(test_data):
+            if i % 100 == 0:
+                print('iter:', i)
+            sess.run(training_op, feed_dict={som.x: color_data, som.n:i})
+        end = time.time()
+        print(end - start)
+        img2 = tf.reshape(som.w, [som_dim,som_dim,-1]).eval()
+        plt.subplot(122)
+        plt.imshow(img2)
+    writer.close()
+    plt.show()
+            
+test_som_with_color_data()
