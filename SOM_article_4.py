@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
-
+import time
 
 class SOM_Network():
     def __init__(self, input_dim, dim=10, sigma=None, learning_rate=0.1, tay2=1000, dtype=tf.float32):
@@ -39,9 +39,9 @@ class SOM_Network():
 
     def __competition(self, info=''):
         with tf.name_scope(info+'competition') as scope:
-        #вычисляем минимум евклидова расстояния для всей сетки нейронов
-        distance = tf.sqrt(tf.reduce_sum(tf.square(self.x - self.w), axis=1))
-        #возвращаем индекс победившего нейрона (формула 1) (именно позиция, а не значение!)
+            #вычисляем минимум евклидова расстояния для всей сетки нейронов
+            distance = tf.sqrt(tf.reduce_sum(tf.square(self.x - self.w), axis=1))
+            #возвращаем индекс победившего нейрона (формула 1) (именно позиция, а не значение!)
         return tf.argmin(distance, axis=0)
 
     
@@ -96,8 +96,8 @@ class SOM_Network():
 
 def test_som_with_color_data():
     som_dim = 100
-    som = SOMNetwork(input_dim=3, dim=som_dim, dtype=tf.float64, sigma=3)
-    test_data = np.random.uniform(0, 1, (250000, 3))
+    som = SOM_Network(input_dim=3, dim=som_dim, dtype=tf.float64, sigma=3)
+    test_data = np.random.uniform(0, 1, (25600, 3))
     training_op, lr_summary, sigma_summary = som.training_op()
     init = tf.global_variables_initializer()
     writer = tf.summary.FileWriter('./logs/', tf.get_default_graph())
