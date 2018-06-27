@@ -6,23 +6,11 @@ from random import shuffle
 import pickle
 from constants import *
 import gensim
-
-
-def normalize(vec):
-    total = sum(vec)
-    return list(map(lambda x: x/total, vec))
-
-## FIXME! normalize:
-# maybe it should be np.random.uniform(0, 1, (iter_num, 3))
+import fasttext
 
 def word2vec(word, vec_size):
-    try:
-        result = dictionary[word]
-        return result
-    except KeyError:
-        new_vec = normalize(normal(size = vec_size))
-        result = dictionary[word] = new_vec
-        return result
+    result = dictionary[word]
+    return result
 
 
 def corpora2vec(corpora, vec_size):
@@ -55,13 +43,13 @@ def padd_corpora(corpora, vec_size, sent_size):
 
 
 def del_empty(corpora):
-    return list(filter(lambda x: x!=[], corpora))
+    return list(filter(lambda x: x != [], corpora))
 
 
 def prepare_corpora(corpora, vec_size, \
                     sent_size):
     '''
-    takes a batch and prepare it
+    takes a batch and prepares it
     '''
     # corpora = del_empty(corpora)
     vec_dictionary = corpora2vec(corpora, vec_size)
@@ -71,32 +59,40 @@ def prepare_corpora(corpora, vec_size, \
     return vec_dictionary    
 
 
-def rand(vec_size):
-    return normalize(normal(size = vec_size))
-
-
 def store_data(data, file_to_store):
     f = open(file_to_store, 'wb')
     pickle.dump(data, f)
     f.close()
 
 
-def next_batch(corpora, n, vec_size):
-    batch = []
-    labels = []
-    for _ in range(n):
-        sent = corpora.readline()
-        if len(sent) == 0:
-            return 0
-        sent = sent.split()
-        if sent[:-1] != []:
-            labels.append(int(sent[-1]))
-            batch.append(sent[:-1])
-    batch = prepare_corpora(batch, vec_size, sent_size)
-    labels = [[1-labels[i], \
-               labels[i]] for i in range(len(labels))]
-    batch = [batch, labels]
+def next_batch(corpora_file, n, vec_size):
+    def inner_next_batch(corpora, n, vec_size):
+        batch = []
+        labels = []
+        for _ in range(n):
+            sent = corpora.readline()
+            if len(sent) == 0:
+                return 0
+            sent = sent.split()
+            if sent[:-1] != []:
+                labels.append(int(sent[-1]))
+                batch.append(sent[:-1])
+        batch = prepare_corpora(batch, vec_size, sent_size)
+        labels = [[1-labels[i], \
+                   labels[i]] for i in range(len(labels))]
+        batch = [batch, labels]
+        return batch
+
+    corpora = open(corpora_file, 'r')
+    batch = inner_next_batch(corpora, n, vec_size)
+    if batch == 0:
+        corpora.close()
+        corpora = open(corpora_file, 'r')
+        batch = inner_next_batch(corpora, n, vec_size)
     return batch
+        
+dictionary = fasttext.load_model('fasttext100.bin')
+
 
 # # building a dictionary
 # model = gensim.models.KeyedVectors.load_word2vec_format(
@@ -105,5 +101,3 @@ def next_batch(corpora, n, vec_size):
 # for key in model.vocab:
 #     if str.isalpha(key):
 #         dictionary[key.lower()] = model.wv[key]
-
-dictionary, vec_size = get_dict(en_dict_source)
