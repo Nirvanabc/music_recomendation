@@ -2,6 +2,7 @@ import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import time
+from constants import *
 
 class SOM_Network():
     def __init__(self, input_dim, dim=10, sigma=None, learning_rate=0.1, tay2=1000, dtype=tf.float32):
@@ -95,9 +96,8 @@ class SOM_Network():
 #== Test SOM Network ==
 
 def test_som_with_color_data():
-    som_dim = 100
     som = SOM_Network(input_dim=3, dim=som_dim, dtype=tf.float64, sigma=3)
-    test_data = np.random.uniform(0, 1, (25600, 3))
+    test_data = np.random.uniform(0, 1, (iter_num, 3))
     training_op, lr_summary, sigma_summary = som.training_op()
     init = tf.global_variables_initializer()
     writer = tf.summary.FileWriter('./logs/', tf.get_default_graph())
@@ -105,6 +105,8 @@ def test_som_with_color_data():
         init.run()
         img1 = tf.reshape(som.w, [som_dim,som_dim,-1]).eval()
         plt.figure(1)
+
+        # слева
         plt.subplot(121)
         plt.imshow(img1)
         start = time.time()
@@ -115,6 +117,8 @@ def test_som_with_color_data():
         end = time.time()
         print(end - start)
         img2 = tf.reshape(som.w, [som_dim,som_dim,-1]).eval()
+
+        # справа
         plt.subplot(122)
         plt.imshow(img2)
     writer.close()
